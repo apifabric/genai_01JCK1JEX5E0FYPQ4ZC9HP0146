@@ -1,0 +1,62 @@
+{
+    "models": [
+        {
+            "classname": "Customer",
+            "code": "class Customer(Base):\n    \"\"\"description: Customer information including personal details and account info.\"\"\"\n    __tablename__ = 'customers'\n\n    id = Column(Integer, primary_key=True, autoincrement=True)\n    name = Column(String, nullable=False)\n    email = Column(String)\n    phone = Column(String)\n    balance = Column(Integer)\n    credit_limit = Column(Integer)",
+            "description": "Customer information including personal details and account info.",
+            "name": "Customer"
+        },
+        {
+            "classname": "SkiEquipment",
+            "code": "class SkiEquipment(Base):\n    \"\"\"description: Details of ski equipment available for rent at the ski shop.\"\"\"\n    __tablename__ = 'ski_equipment'\n\n    id = Column(Integer, primary_key=True, autoincrement=True)\n    name = Column(String, nullable=False)\n    price_per_day = Column(Integer)\n    stock_quantity = Column(Integer)",
+            "description": "Details of ski equipment available for rent at the ski shop.",
+            "name": "SkiEquipment"
+        },
+        {
+            "classname": "RentalTransaction",
+            "code": "class RentalTransaction(Base):\n    \"\"\"description: Transactions for renting ski equipment.\"\"\"\n    __tablename__ = 'rental_transactions'\n\n    id = Column(Integer, primary_key=True, autoincrement=True)\n    customer_id = Column(Integer, ForeignKey('customers.id'))\n    equipment_id = Column(Integer, ForeignKey('ski_equipment.id'))\n    rental_date = Column(Date, nullable=False)\n    return_date = Column(Date)\n    amount_total = Column(Integer)",
+            "description": "Transactions for renting ski equipment.",
+            "name": "RentalTransaction"
+        },
+        {
+            "classname": "HotChocolateBar",
+            "code": "class HotChocolateBar(Base):\n    \"\"\"description: Sales transactions from the hot chocolate bar.\"\"\"\n    __tablename__ = 'hot_chocolate_bar'\n\n    id = Column(Integer, primary_key=True, autoincrement=True)\n    customer_id = Column(Integer, ForeignKey('customers.id'))\n    drink_type = Column(String, nullable=False)\n    quantity = Column(Integer)\n    total_price = Column(Integer)",
+            "description": "Sales transactions from the hot chocolate bar.",
+            "name": "HotChocolateBar"
+        },
+        {
+            "classname": "Instructor",
+            "code": "class Instructor(Base):\n    \"\"\"description: Information about ski instructors available for lessons.\"\"\"\n    __tablename__ = 'instructors'\n\n    id = Column(Integer, primary_key=True, autoincrement=True)\n    name = Column(String, nullable=False)\n    certifications = Column(String)\n    years_experience = Column(Integer)",
+            "description": "Information about ski instructors available for lessons.",
+            "name": "Instructor"
+        },
+        {
+            "classname": "TrainingSession",
+            "code": "class TrainingSession(Base):\n    \"\"\"description: Details of training sessions provided by ski instructors.\"\"\"\n    __tablename__ = 'training_sessions'\n\n    id = Column(Integer, primary_key=True, autoincrement=True)\n    instructor_id = Column(Integer, ForeignKey('instructors.id'))\n    customer_id = Column(Integer, ForeignKey('customers.id'))\n    session_date = Column(Date, nullable=False)\n    duration = Column(Integer)  # in minutes\n    price = Column(Integer)",
+            "description": "Details of training sessions provided by ski instructors.",
+            "name": "TrainingSession"
+        }
+    ],
+    "rules": [
+        {
+            "name": "CustomerBalanceSum",
+            "description": "The customer's balance is the sum of the total amounts of their rental transactions where the return_date is null.",
+            "use_case": "Ensure customer balance dynamically adjusts to rental transactions.",
+            "code": "Rule.sum(derive=Customer.balance, as_sum_of=RentalTransaction.amount_total, where=lambda row: row.return_date is None)"
+        },
+        {
+            "name": "RentalAmountTotalFormula",
+            "description": "The total amount for a rental transaction is calculated based on stock quantity and price per day.",
+            "use_case": "Dynamic calculation of rental transaction total.",
+            "code": "Rule.formula(derive=RentalTransaction.amount_total, as_expression=lambda row: row.stock_quantity * row.price_per_day)"
+        },
+        {
+            "name": "CustomerBalanceConstraint",
+            "description": "Customers can't have a balance that exceeds their credit limit.",
+            "use_case": "Prevent customers from exceeding their credit limit when performing transactions.",
+            "code": "Rule.constraint(validate=Customer, as_condition=lambda row: row.balance <= row.credit_limit, error_msg=\"Customer balance ({row.balance}) exceeds credit limit ({row.credit_limit})\")"
+        }
+    ],
+    "test_data": "from datetime import date\n\n# Customers\ncustomer1 = Customer(name=\"John Doe\", email=\"john.doe@example.com\", phone=\"123-456-7890\", balance=500, credit_limit=1000)\ncustomer2 = Customer(name=\"Jane Smith\", email=\"jane.smith@example.com\", phone=\"987-654-3210\", balance=300, credit_limit=800)\ncustomer3 = Customer(name=\"Alice Brown\", email=\"alice.brown@example.com\", phone=\"555-123-4567\", balance=200, credit_limit=500)\ncustomer4 = Customer(name=\"Bob Green\", email=\"bob.green@example.com\", phone=\"555-765-4321\", balance=600, credit_limit=1500)\n\n# Ski Equipment\nski1 = SkiEquipment(name=\"Skis - Beginner\", price_per_day=20, stock_quantity=50)\nski2 = SkiEquipment(name=\"Skis - Intermediate\", price_per_day=25, stock_quantity=30)\nski3 = SkiEquipment(name=\"Ski Boots\", price_per_day=10, stock_quantity=100)\nski4 = SkiEquipment(name=\"Poles\", price_per_day=5, stock_quantity=200)\n\n# Rental Transactions\nrental1 = RentalTransaction(customer_id=1, equipment_id=1, rental_date=date(2023, 1, 15), return_date=None, amount_total=200)\nrental2 = RentalTransaction(customer_id=2, equipment_id=2, rental_date=date(2023, 2, 20), return_date=date(2023, 2, 25), amount_total=125)\nrental3 = RentalTransaction(customer_id=3, equipment_id=3, rental_date=date(2023, 3, 10), return_date=None, amount_total=150)\nrental4 = RentalTransaction(customer_id=4, equipment_id=4, rental_date=date(2023, 4, 5), return_date=date(2023, 4, 10), amount_total=25)\n\n# Hot Chocolate Bar\nchocolate1 = HotChocolateBar(customer_id=1, drink_type=\"Milk Chocolate\", quantity=2, total_price=10)\nchocolate2 = HotChocolateBar(customer_id=2, drink_type=\"Dark Chocolate\", quantity=1, total_price=5)\nchocolate3 = HotChocolateBar(customer_id=3, drink_type=\"White Chocolate\", quantity=4, total_price=20)\nchocolate4 = HotChocolateBar(customer_id=4, drink_type=\"Spicy Chocolate\", quantity=3, total_price=15)\n\n# Instructors\ninstructor1 = Instructor(name=\"Luke Wilson\", certifications=\"Level 1\", years_experience=5)\ninstructor2 = Instructor(name=\"Emma Watson\", certifications=\"Level 2\", years_experience=8)\ninstructor3 = Instructor(name=\"Mark Hamill\", certifications=\"Level 3\", years_experience=10)\ninstructor4 = Instructor(name=\"Natalie Portman\", certifications=\"Level 1\", years_experience=3)\n\n# Training Sessions\nsession1 = TrainingSession(instructor_id=1, customer_id=1, session_date=date(2023, 1, 20), duration=60, price=50)\nsession2 = TrainingSession(instructor_id=2, customer_id=2, session_date=date(2023, 2, 25), duration=90, price=70)\nsession3 = TrainingSession(instructor_id=3, customer_id=3, session_date=date(2023, 3, 30), duration=120, price=90)\nsession4 = TrainingSession(instructor_id=4, customer_id=4, session_date=date(2023, 4, 10), duration=30, price=30)",
+    "name": "SkiShopManagement"
+}

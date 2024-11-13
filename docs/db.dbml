@@ -1,0 +1,72 @@
+// Copy this text, paste to https://dbdiagram.io/d
+// Or, https://databasediagram.com/app
+// Or, view in VSCode with extension: "DBML Live Preview"
+
+Project DBML {
+  Note: '''
+Customer: Customer information including personal details and account info.
+HotChocolateBar: Sales transactions from the hot chocolate bar.
+Instructor: Information about ski instructors available for lessons.
+RentalTransaction: Transactions for renting ski equipment.
+SkiEquipment: Details of ski equipment available for rent at the ski shop.
+TrainingSession: Details of training sessions provided by ski instructors.
+'''
+}
+
+Table Customer {
+    id INTEGER [primary key]
+    name VARCHAR 
+    email VARCHAR 
+    phone VARCHAR 
+    balance INTEGER 
+    credit_limit INTEGER 
+    }
+
+Table HotChocolateBar {
+    id INTEGER [primary key]
+    customer_id INTEGER 
+    drink_type VARCHAR 
+    quantity INTEGER 
+    total_price INTEGER 
+    }
+
+Table Instructor {
+    id INTEGER [primary key]
+    name VARCHAR 
+    certifications VARCHAR 
+    years_experience INTEGER 
+    }
+
+Table RentalTransaction {
+    id INTEGER [primary key]
+    customer_id INTEGER 
+    equipment_id INTEGER 
+    rental_date DATE 
+    return_date DATE 
+    amount_total INTEGER 
+    }
+
+Table SkiEquipment {
+    id INTEGER [primary key]
+    name VARCHAR 
+    price_per_day INTEGER 
+    stock_quantity INTEGER 
+    }
+
+Table TrainingSession {
+    id INTEGER [primary key]
+    instructor_id INTEGER 
+    customer_id INTEGER 
+    session_date DATE 
+    duration INTEGER 
+    price INTEGER 
+    }
+
+
+
+// Relationships
+    Ref: HotChocolateBar.(customer_id) < Customer.(id)
+    Ref: RentalTransaction.(customer_id) < Customer.(id)
+    Ref: RentalTransaction.(equipment_id) < SkiEquipment.(id)
+    Ref: TrainingSession.(customer_id) < Customer.(id)
+    Ref: TrainingSession.(instructor_id) < Instructor.(id)

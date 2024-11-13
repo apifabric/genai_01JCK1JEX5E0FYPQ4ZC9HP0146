@@ -1,0 +1,192 @@
+about:
+  date: November 13, 2024 15:17:46
+  recent_changes: works with modified safrs-react-admin
+  version: 0.0.0
+api_root: '{http_type}://{swagger_host}:{port}/{api}'
+authentication: '{system-default}'
+info:
+  number_relationships: 5
+  number_tables: 6
+info_toggle_checked: true
+resources:
+  Customer:
+    attributes:
+    - label: ' name*'
+      name: name
+      required: true
+      search: true
+      sort: true
+    - name: email
+    - name: phone
+    - name: balance
+    - name: credit_limit
+    - name: id
+    description: Customer information including personal details and account info.
+    info_list: Customer information including personal details and account info.
+    tab_groups:
+    - direction: tomany
+      fks:
+      - customer_id
+      name: HotChocolateBarList
+      resource: HotChocolateBar
+    - direction: tomany
+      fks:
+      - customer_id
+      name: RentalTransactionList
+      resource: RentalTransaction
+    - direction: tomany
+      fks:
+      - customer_id
+      name: TrainingSessionList
+      resource: TrainingSession
+    type: Customer
+    user_key: name
+  HotChocolateBar:
+    attributes:
+    - label: ' id*'
+      name: id
+      search: true
+      sort: true
+    - name: customer_id
+    - name: drink_type
+      required: true
+    - name: quantity
+    - name: total_price
+    description: Sales transactions from the hot chocolate bar.
+    info_list: Sales transactions from the hot chocolate bar.
+    tab_groups:
+    - direction: toone
+      fks:
+      - customer_id
+      name: customer
+      resource: Customer
+    type: HotChocolateBar
+    user_key: id
+  Instructor:
+    attributes:
+    - label: ' name*'
+      name: name
+      required: true
+      search: true
+      sort: true
+    - name: certifications
+    - name: years_experience
+    - name: id
+    description: Information about ski instructors available for lessons.
+    info_list: Information about ski instructors available for lessons.
+    tab_groups:
+    - direction: tomany
+      fks:
+      - instructor_id
+      name: TrainingSessionList
+      resource: TrainingSession
+    type: Instructor
+    user_key: name
+  RentalTransaction:
+    attributes:
+    - label: ' id*'
+      name: id
+      search: true
+      sort: true
+    - name: customer_id
+    - name: equipment_id
+    - name: rental_date
+      required: true
+      type: DATE
+    - name: return_date
+      type: DATE
+    - name: amount_total
+    description: Transactions for renting ski equipment.
+    info_list: Transactions for renting ski equipment.
+    tab_groups:
+    - direction: toone
+      fks:
+      - customer_id
+      name: customer
+      resource: Customer
+    - direction: toone
+      fks:
+      - equipment_id
+      name: equipment
+      resource: SkiEquipment
+    type: RentalTransaction
+    user_key: id
+  SkiEquipment:
+    attributes:
+    - label: ' name*'
+      name: name
+      required: true
+      search: true
+      sort: true
+    - name: price_per_day
+    - name: stock_quantity
+    - name: id
+    description: Details of ski equipment available for rent at the ski shop.
+    info_list: Details of ski equipment available for rent at the ski shop.
+    tab_groups:
+    - direction: tomany
+      fks:
+      - equipment_id
+      name: RentalTransactionList
+      resource: RentalTransaction
+    type: SkiEquipment
+    user_key: name
+  TrainingSession:
+    attributes:
+    - label: ' id*'
+      name: id
+      search: true
+      sort: true
+    - name: customer_id
+    - name: instructor_id
+    - name: session_date
+      required: true
+      type: DATE
+    - name: duration
+    - name: price
+    description: Details of training sessions provided by ski instructors.
+    info_list: Details of training sessions provided by ski instructors.
+    tab_groups:
+    - direction: toone
+      fks:
+      - customer_id
+      name: customer
+      resource: Customer
+    - direction: toone
+      fks:
+      - instructor_id
+      name: instructor
+      resource: Instructor
+    type: TrainingSession
+    user_key: id
+settings:
+  HomeJS: /admin-app/home.js
+  max_list_columns: 8
+  style_guide:
+    applicationLocales:
+    - en
+    - es
+    currency_symbol: $
+    currency_symbol_position: left
+    date_format: LL
+    decimal_max: '1000000000'
+    decimal_min: '0'
+    decimal_separator: .
+    detail_mode: tab
+    edit_on_mode: dblclick
+    exclude_listpicker: false
+    include_translation: 'false'
+    keycloak_client_id: alsclient
+    keycloak_realm: kcals
+    keycloak_url: http://localhost:8080
+    locale: en
+    max_decimal_digits: '4'
+    min_decimal_digits: '2'
+    new_mode: dialog
+    pick_style: list
+    row_height: small,
+    serviceType: OntimizeEE
+    startSessionPath: /auth/login
+    style: light
+    thousand_separator: ','
+    use_keycloak: 'false'
